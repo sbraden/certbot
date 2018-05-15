@@ -789,7 +789,7 @@ def install(config, plugins):
     # Unfortunately this can't be done in argument parser, as certificate
     # manager needs the access to renewal directory paths
     if config.certname:
-        config = _populate_from_certname(config)  # Sarah: What does this do?
+        config = _populate_from_certname(config)
     if config.key_path and config.cert_path:
         _check_certificate_and_key(config)
         domains, _ = _find_domains_or_certname(config, installer)
@@ -798,8 +798,7 @@ def install(config, plugins):
     else:
         certname_question = ("Which certificate would you like to install?")
         config.certname = cert_manager.get_certnames(
-            config, "install", allow_multiple=False,
-            custom_prompt=certname_question)[0]
+            config, "install", allow_multiple=False, custom_prompt=None)[0]
         cert_domains = cert_manager.domains_for_certname(config, config.certname)
         if config.noninteractive_mode:
             domains = cert_domains  # this needs to be changed?
