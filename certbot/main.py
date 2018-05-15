@@ -789,16 +789,25 @@ def install(config, plugins):
     # Unfortunately this can't be done in argument parser, as certificate
     # manager needs the access to renewal directory paths
     if config.certname:
-        config = _populate_from_certname(config)
+        config = _populate_from_certname(config)  # Sarah: What does this do?
     if config.key_path and config.cert_path:
         _check_certificate_and_key(config)
         domains, _ = _find_domains_or_certname(config, installer)
         le_client = _init_le_client(config, authenticator=None, installer=installer)
         _install_cert(config, le_client, domains)
     else:
-        raise errors.ConfigurationError("Path to certificate or key was not defined. "
-            "If your certificate is managed by Certbot, please use --cert-name "
-            "to define which certificate you would like to install.")
+        certname_question = ("Which certificate would you like to install?")
+        config.certname = cert_manager.get_certnames(
+            config, "install", allow_multiple=False,
+            custom_prompt=certname_question)[0]
+        cert_domains = cert_manager.domains_for_certname(config, config.certname)
+        if config.noninteractive_mode:
+            domains = cert_domains  # this needs to be changed?
+            # Sarah: This error shouldl still get raised if in noninteractive mode.
+            raise errors.ConfigurationError("Path to certificate or key was not defined. "
+                "If your certificate is managed by Certbot, please use --cert-name "
+                "to define which certificate you would like to install.")
+
 
 def _populate_from_certname(config):
     """Helper function for install to populate missing config values from lineage
