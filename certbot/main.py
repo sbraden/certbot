@@ -796,7 +796,6 @@ def install(config, plugins):
         le_client = _init_le_client(config, authenticator=None, installer=installer)
         _install_cert(config, le_client, domains)
     else:
-        certname_question = ("Which certificate would you like to install?")
         config.certname = cert_manager.get_certnames(
             config, "install", allow_multiple=False, custom_prompt=None)[0]
         cert_domains = cert_manager.domains_for_certname(config, config.certname)
