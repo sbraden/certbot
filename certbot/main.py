@@ -798,14 +798,16 @@ def install(config, plugins):
     else:
         config.certname = cert_manager.get_certnames(
             config, "install", allow_multiple=False, custom_prompt=None)[0]
-        cert_domains = cert_manager.domains_for_certname(config, config.certname)
+        config = _populate_from_certname(config)
+        _check_certificate_and_key(config)
+        # domains, _ = _find_domains_or_certname(config, installer)
+        domains = cert_manager.domains_for_certname(config, config.certname)
+        le_client = _init_le_client(config, authenticator=None, installer=installer)
+        _install_cert(config, le_client, domains)
         if config.noninteractive_mode:
-            domains = cert_domains  # this needs to be changed?
-            # Sarah: This error shouldl still get raised if in noninteractive mode.
             raise errors.ConfigurationError("Path to certificate or key was not defined. "
                 "If your certificate is managed by Certbot, please use --cert-name "
                 "to define which certificate you would like to install.")
-
 
 def _populate_from_certname(config):
     """Helper function for install to populate missing config values from lineage
